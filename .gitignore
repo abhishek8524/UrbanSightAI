@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+.angular/cache/
+out-tsc/
+functions/lib/
+
+# Environment and secrets
+.env
+.env.local
+*.local
+
+# IDE and OS
+.idea/
+.vscode/
+.DS_Store
+*.log
+
+# Firebase
+.firebase/
+*-debug.log
+*-debug.log.*
+
+# Misc
+coverage/
+*.tsbuildinfo

@@ -1,0 +1,36 @@
+@use '@angular/material' as mat;
+
+@include mat.core();
+
+:root {
+  --primary: #00796b;
+  --primary-dark: #004d40;
+  --primary-light: #4db6ac;
+  @include mat.all-component-themes(mat.define-theme((
+    color: (
+      theme-type: light,
+      primary: mat.$cyan-palette,
+    ),
+  )));
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  background: #fafafa;
+}
+
+body {
+  color: #374151;
+}
+
+.toast-success .mdc-snackbar__surface {
+  background: #2e7d32 !important;
+}
+.toast-error .mdc-snackbar__surface {
+  background: #c62828 !important;
+}
+.toast-info .mdc-snackbar__surface {
+  background: #1565c0 !important;
+}
