@@ -58,6 +58,20 @@ import { MatCardModule } from '@angular/material/card';
         </mat-card-content>
       </mat-card>
     </section>
+      <!-- About Section -->
+      <section class="about" style="max-width:720px;margin:0 auto;padding:2rem 0;">
+        <mat-card>
+          <mat-card-content>
+            <h2 style="color:#059669;font-size:2rem;font-weight:bold;margin-bottom:0.5rem;">About UrbanSightAI</h2>
+            <p style="color:#374151;font-size:1rem;margin-bottom:0.5rem;">
+              UrbanSightAI empowers citizens to report urban issues quickly and efficiently. Our platform leverages AI and geolocation to streamline the reporting process, helping city administrators respond faster and improve urban environments.
+            </p>
+            <p style="color:#6b7280;font-size:0.95rem;">
+              Built with Angular, Firebase, and Gemini AI. Your feedback helps us make cities smarter and safer.
+            </p>
+          </mat-card-content>
+        </mat-card>
+      </section>
   `,
   styles: [
     `
