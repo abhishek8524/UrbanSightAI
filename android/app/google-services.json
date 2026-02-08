@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "832733254153",
+    "project_id": "urbansightmacathon",
+    "storage_bucket": "urbansightmacathon.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:832733254153:android:9adf45279f81fef9ec1ed8",
+        "android_client_info": {
+          "package_name": "com.example.urbansight"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBLlthrgeVXdVetL_cmqBleWCuKojAp-YI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
