@@ -50,8 +50,8 @@ class _FaqScreenState extends State<FaqScreen> {
 
     return SingleChildScrollView(
       padding: EdgeInsets.symmetric(
-        horizontal: isWide ? 48 : 24,
-        vertical: 40,
+        horizontal: isWide ? 56 : 24,
+        vertical: 48,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -74,21 +74,21 @@ class _FaqScreenState extends State<FaqScreen> {
             ),
           )
               .animateEntrance(delayMs: 80),
-          const SizedBox(height: 32),
+          const SizedBox(height: 36),
           ...List.generate(_faqs.length, (i) {
             final faq = _faqs[i];
             final isExpanded = _expandedIndex == i;
             return Padding(
-              padding: const EdgeInsets.only(bottom: 12),
+              padding: const EdgeInsets.only(bottom: 20),
               child: Animated3DCard(
                 padding: EdgeInsets.zero,
                 child: InkWell(
                   onTap: () => setState(() {
                     _expandedIndex = isExpanded ? null : i;
                   }),
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(24),
                   child: Padding(
-                    padding: const EdgeInsets.all(20),
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [

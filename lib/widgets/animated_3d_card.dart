@@ -50,7 +50,7 @@ class _Animated3DCardState extends State<Animated3DCard> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final borderRadius = widget.borderRadius ?? BorderRadius.circular(20);
+    final borderRadius = widget.borderRadius ?? BorderRadius.circular(24);
 
     return MouseRegion(
       onHover: _onHover,
@@ -66,11 +66,20 @@ class _Animated3DCardState extends State<Animated3DCard> {
           decoration: BoxDecoration(
             color: theme.colorScheme.surface,
             borderRadius: borderRadius,
+            border: Border.all(
+              color: theme.colorScheme.outline.withValues(alpha: 0.06),
+              width: 1,
+            ),
             boxShadow: [
               BoxShadow(
+                color: theme.colorScheme.shadow.withValues(alpha: 0.04),
+                blurRadius: 12,
+                offset: const Offset(0, 2),
+              ),
+              BoxShadow(
                 color: theme.colorScheme.shadow.withValues(alpha: 0.08),
-                blurRadius: 24,
-                offset: const Offset(0, 8),
+                blurRadius: 32,
+                offset: const Offset(0, 12),
               ),
             ],
           ),

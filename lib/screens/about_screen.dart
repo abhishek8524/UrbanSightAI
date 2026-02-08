@@ -16,8 +16,8 @@ class AboutScreen extends StatelessWidget {
 
     return SingleChildScrollView(
       padding: EdgeInsets.symmetric(
-        horizontal: isWide ? 48 : 24,
-        vertical: 40,
+        horizontal: isWide ? 56 : 24,
+        vertical: 48,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -46,18 +46,18 @@ class AboutScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(child: _MissionCard(textTheme: textTheme, colorScheme: colorScheme)),
-                    const SizedBox(width: 24),
+                    const SizedBox(width: 32),
                     Expanded(child: _StatsCard(colorScheme: colorScheme, textTheme: textTheme)),
                   ],
                 )
               : Column(
                   children: [
                     _MissionCard(textTheme: textTheme, colorScheme: colorScheme),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 28),
                     _StatsCard(colorScheme: colorScheme, textTheme: textTheme),
                   ],
                 ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 40),
           _ValuesSection(colorScheme: colorScheme, textTheme: textTheme),
           const SizedBox(height: 48),
         ],
@@ -75,11 +75,12 @@ class _MissionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Animated3DCard(
+      padding: const EdgeInsets.all(28),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(Icons.flag_rounded, size: 40, color: colorScheme.primary),
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
           Text(
             'Our mission',
             style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
@@ -108,6 +109,7 @@ class _StatsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Animated3DCard(
+      padding: const EdgeInsets.all(28),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -183,13 +185,13 @@ class _ValuesSection extends StatelessWidget {
           style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
         )
             .animateEntrance(delayMs: 400),
-        const SizedBox(height: 24),
+        const SizedBox(height: 28),
         ...values.asMap().entries.map((e) {
           final (icon, title, body) = e.value;
           return Padding(
-            padding: const EdgeInsets.only(bottom: 16),
+            padding: const EdgeInsets.only(bottom: 20),
             child: Animated3DCard(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
