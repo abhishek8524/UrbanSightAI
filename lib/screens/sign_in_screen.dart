@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
+import '../services/app_state.dart';
 import '../services/auth_service.dart';
+import '../utils/app_animations.dart';
+import '../widgets/tap_scale_button.dart';
 import 'sign_up_screen.dart';
 
 /// Password required to access Admin Console from the sign-in screen.
@@ -115,14 +118,21 @@ class _SignInScreenState extends State<SignInScreen> {
     });
     try {
       final auth = context.read<AuthService>();
+      final appState = context.read<AppState>();
       await auth.signInAnonymously();
       await auth.setRoleAdmin();
-      if (mounted) {
-        setState(() => _loading = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Welcome to Admin Console')),
-        );
-      }
+      if (!mounted) return;
+      setState(() => _loading = false);
+      // Defer profile refresh to next frame to avoid _dependents.isEmpty assertion.
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        if (!mounted) return;
+        await appState.refreshProfile();
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Welcome to Admin Console')),
+          );
+        }
+      });
     } catch (e) {
       if (mounted) {
         setState(() {
@@ -207,7 +217,8 @@ class _SignInScreenState extends State<SignInScreen> {
                           alignment: Alignment.centerLeft,
                         ),
                       if (!widget.inShell) const SizedBox(height: 16),
-                      _HeroSection(colorScheme: colorScheme, textTheme: textTheme),
+                      _HeroSection(colorScheme: colorScheme, textTheme: textTheme)
+                          .animateEntrance(delayMs: 0),
                     ],
                   ),
                 ),
@@ -308,18 +319,21 @@ class _SignInScreenState extends State<SignInScreen> {
                                             (v == null || v.isEmpty) ? 'Enter your password' : null,
                                       ),
                                       const SizedBox(height: 28),
-                                      FilledButton(
+                                      TapScaleButton(
                                         onPressed: _loading ? null : _signInWithEmailPassword,
-                                        child: _loading
-                                            ? SizedBox(
-                                                height: 24,
-                                                width: 24,
-                                                child: CircularProgressIndicator(
-                                                  strokeWidth: 2,
-                                                  color: colorScheme.onPrimary,
-                                                ),
-                                              )
-                                            : const Text('Sign in'),
+                                        child: FilledButton(
+                                          onPressed: null,
+                                          child: _loading
+                                              ? SizedBox(
+                                                  height: 24,
+                                                  width: 24,
+                                                  child: CircularProgressIndicator(
+                                                    strokeWidth: 2,
+                                                    color: colorScheme.onPrimary,
+                                                  ),
+                                                )
+                                              : const Text('Sign in'),
+                                        ),
                                       ),
                                       const SizedBox(height: 20),
                                       Row(
@@ -373,7 +387,8 @@ class _SignInScreenState extends State<SignInScreen> {
                                       ),
                                     ],
                                   ),
-                                ),
+                                )
+                                    .animateScaleIn(delayMs: 120),
                                 const SizedBox(height: 32),
                               ],
                             ),

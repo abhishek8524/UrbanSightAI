@@ -31,6 +31,12 @@ class AppState extends ChangeNotifier {
   /// True when [appUser] has role admin.
   bool get isAdmin => _appUser?.role == UserRole.admin;
 
+  /// Reload the current user's profile from Firestore (e.g. after role change).
+  Future<void> refreshProfile() async {
+    if (_firebaseUser == null) return;
+    await _loadProfile(_firebaseUser!.uid);
+  }
+
   void _onAuthChanged(User? user) {
     _firebaseUser = user;
     if (_firebaseUser == null) {

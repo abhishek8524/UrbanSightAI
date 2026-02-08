@@ -3,17 +3,25 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import '../services/auth_service.dart';
+import '../utils/app_animations.dart';
+import '../widgets/tap_scale_button.dart';
 import 'sign_in_screen.dart';
 
 /// Dedicated sign-up screen with Material 3 and Google Fonts.
 /// Entry point when user is not signed in; links to [SignInScreen].
 class SignUpScreen extends StatefulWidget {
-  const SignUpScreen({super.key, this.inShell = false, this.onNavigateToSignIn});
+  const SignUpScreen({
+    super.key,
+    this.inShell = false,
+    this.onNavigateToSignIn,
+    this.onAdminPressed,
+  });
 
   static const String routeName = '/sign-up';
 
   final bool inShell;
   final VoidCallback? onNavigateToSignIn;
+  final VoidCallback? onAdminPressed;
 
   @override
   State<SignUpScreen> createState() => _SignUpScreenState();
@@ -119,7 +127,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   child: Column(
                     children: [
                       const SizedBox(height: 32),
-                      _HeroSection(colorScheme: colorScheme, textTheme: textTheme),
+                      _HeroSection(colorScheme: colorScheme, textTheme: textTheme)
+                          .animateEntrance(delayMs: 0),
                       const SizedBox(height: 40),
                       Flexible(
                         child: SingleChildScrollView(
@@ -254,9 +263,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                         },
                                       ),
                                       const SizedBox(height: 28),
-                                      FilledButton(
+                                      TapScaleButton(
                                         onPressed: _loading ? null : _createAccount,
-                                        child: _loading
+                                        child: FilledButton(
+                                          onPressed: null,
+                                          child: _loading
                                             ? SizedBox(
                                                 height: 24,
                                                 width: 24,
@@ -266,10 +277,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                                 ),
                                               )
                                             : const Text('Create account'),
+                                        ),
                                       ),
                                     ],
                                   ),
-                                ),
+                                )
+                                    .animateScaleIn(delayMs: 120),
                                 const SizedBox(height: 24),
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
@@ -309,6 +322,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                   icon: const Icon(Icons.person_outline_rounded, size: 20),
                                   label: const Text('Continue as guest'),
                                 ),
+                                if (widget.onAdminPressed != null) ...[
+                                  const SizedBox(height: 16),
+                                  OutlinedButton.icon(
+                                    onPressed: _loading ? null : widget.onAdminPressed,
+                                    icon: const Icon(Icons.admin_panel_settings_outlined, size: 20),
+                                    label: const Text('Admin Console'),
+                                    style: OutlinedButton.styleFrom(
+                                      foregroundColor: Theme.of(context).colorScheme.primary,
+                                    ),
+                                  ),
+                                ],
                                 const SizedBox(height: 24),
                               ],
                             ),

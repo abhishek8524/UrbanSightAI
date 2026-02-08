@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../utils/app_animations.dart';
 import '../widgets/animated_3d_card.dart';
 
 class ContactScreen extends StatefulWidget {
@@ -69,9 +69,7 @@ class _ContactScreenState extends State<ContactScreen> {
                           color: colorScheme.onSurface,
                         ),
                       )
-                          .animate()
-                          .fadeIn(duration: 400.ms)
-                          .slideY(begin: 0.2, end: 0, curve: Curves.easeOut),
+                          .animateEntrance(delayMs: 0),
                       const SizedBox(height: 12),
                       Text(
                         'Have a question or feedback? We’d love to hear from you.',
@@ -79,9 +77,7 @@ class _ContactScreenState extends State<ContactScreen> {
                           color: colorScheme.onSurfaceVariant,
                         ),
                       )
-                          .animate()
-                          .fadeIn(delay: 100.ms, duration: 400.ms)
-                          .slideY(begin: 0.15, end: 0, curve: Curves.easeOut),
+                          .animateEntrance(delayMs: 80),
                       const SizedBox(height: 32),
                       _ContactInfoCard(colorScheme: colorScheme, textTheme: textTheme),
                     ],
@@ -116,9 +112,7 @@ class _ContactScreenState extends State<ContactScreen> {
                     color: colorScheme.onSurface,
                   ),
                 )
-                    .animate()
-                    .fadeIn(duration: 400.ms)
-                    .slideY(begin: 0.2, end: 0, curve: Curves.easeOut),
+                    .animateEntrance(delayMs: 0),
                 const SizedBox(height: 12),
                 Text(
                   'Have a question or feedback? We’d love to hear from you.',
@@ -126,9 +120,7 @@ class _ContactScreenState extends State<ContactScreen> {
                     color: colorScheme.onSurfaceVariant,
                   ),
                 )
-                    .animate()
-                    .fadeIn(delay: 100.ms, duration: 400.ms)
-                    .slideY(begin: 0.15, end: 0, curve: Curves.easeOut),
+                    .animateEntrance(delayMs: 80),
                 const SizedBox(height: 32),
                 _ContactInfoCard(colorScheme: colorScheme, textTheme: textTheme),
                 const SizedBox(height: 24),
@@ -184,9 +176,7 @@ class _ContactInfoCard extends StatelessWidget {
         ],
       ),
     )
-        .animate()
-        .fadeIn(delay: 200.ms, duration: 500.ms)
-        .slideX(begin: -0.05, end: 0, curve: Curves.easeOut);
+        .animateScaleIn(delayMs: 150);
   }
 }
 
@@ -279,9 +269,7 @@ class _ContactForm extends StatelessWidget {
           ],
         ),
       )
-          .animate()
-          .fadeIn(duration: 400.ms)
-          .scale(begin: const Offset(0.95, 0.95), end: const Offset(1, 1), curve: Curves.easeOut);
+          .animateScaleIn(delayMs: 0);
     }
     return Animated3DCard(
       child: Form(
@@ -329,8 +317,6 @@ class _ContactForm extends StatelessWidget {
         ),
       ),
     )
-        .animate()
-        .fadeIn(delay: 300.ms, duration: 500.ms)
-        .slideY(begin: 0.08, end: 0, curve: Curves.easeOut);
+        .animateEntrance(delayMs: 300);
   }
 }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../utils/app_animations.dart';
 import '../widgets/animated_3d_card.dart';
 
 class AboutScreen extends StatelessWidget {
@@ -31,9 +31,7 @@ class AboutScreen extends StatelessWidget {
               color: colorScheme.onSurface,
             ),
           )
-              .animate()
-              .fadeIn(duration: 400.ms)
-              .slideY(begin: 0.2, end: 0, curve: Curves.easeOut),
+              .animateEntrance(delayMs: 0),
           const SizedBox(height: 12),
           Text(
             'We help citizens and cities work together to fix local issues.',
@@ -41,9 +39,7 @@ class AboutScreen extends StatelessWidget {
               color: colorScheme.onSurfaceVariant,
             ),
           )
-              .animate()
-              .fadeIn(delay: 100.ms, duration: 400.ms)
-              .slideY(begin: 0.15, end: 0, curve: Curves.easeOut),
+              .animateEntrance(delayMs: 80),
           const SizedBox(height: 48),
           isWide
               ? Row(
@@ -99,9 +95,7 @@ class _MissionCard extends StatelessWidget {
         ],
       ),
     )
-        .animate()
-        .fadeIn(delay: 200.ms, duration: 500.ms)
-        .slideY(begin: 0.1, end: 0, curve: Curves.easeOut);
+        .animateStagger(1, stepMs: 100);
   }
 }
 
@@ -128,9 +122,7 @@ class _StatsCard extends StatelessWidget {
         ],
       ),
     )
-        .animate()
-        .fadeIn(delay: 300.ms, duration: 500.ms)
-        .slideY(begin: 0.1, end: 0, curve: Curves.easeOut);
+        .animateStagger(2, stepMs: 100);
   }
 }
 
@@ -190,9 +182,7 @@ class _ValuesSection extends StatelessWidget {
           'What we stand for',
           style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
         )
-            .animate()
-            .fadeIn(delay: 400.ms)
-            .slideX(begin: -0.05, end: 0, curve: Curves.easeOut),
+            .animateEntrance(delayMs: 400),
         const SizedBox(height: 24),
         ...values.asMap().entries.map((e) {
           final (icon, title, body) = e.value;
@@ -226,9 +216,7 @@ class _ValuesSection extends StatelessWidget {
                 ],
               ),
             )
-                .animate()
-                .fadeIn(delay: 500.ms + (e.key * 80).ms)
-                .slideX(begin: 0.05, end: 0, curve: Curves.easeOut),
+                .animateStagger(4 + e.key, stepMs: 80),
           );
         }),
       ],

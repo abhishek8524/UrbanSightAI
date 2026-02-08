@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
@@ -11,13 +12,15 @@ import '../screens/sign_up_screen.dart';
 import '../services/app_state.dart';
 import '../services/auth_service.dart';
 
+const String _adminMenuValue = 'admin_console';
+
 /// Global shell for the whole web app: header nav bar + body + footer.
 /// Handles both guest (sign up/sign in, about, contact, faq) and logged-in (app tabs + static pages) flows.
 class AppShell extends StatefulWidget {
   const AppShell({
     super.key,
     required this.loggedIn,
-    this.initialRoute = AppShellRoute.signUp,
+    this.initialRoute = AppShellRoute.signIn,
   });
 
   final bool loggedIn;
@@ -51,12 +54,94 @@ class _AppShellState extends State<AppShell> {
   void didUpdateWidget(covariant AppShell widget) {
     super.didUpdateWidget(widget);
     if (!widget.loggedIn && _route == AppShellRoute.home) {
-      _route = AppShellRoute.signUp;
+      _route = AppShellRoute.signIn;
     }
   }
 
   void _navigateTo(AppShellRoute r) {
     setState(() => _route = r);
+  }
+
+  static const String _kAdminPassword = 'admin';
+
+  void _showAdminLoginDialog() {
+    final controller = TextEditingController();
+    final key = GlobalKey<FormState>();
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      useRootNavigator: true,
+      builder: (ctx) {
+        return AlertDialog(
+          title: const Text('Admin Console'),
+          content: Form(
+            key: key,
+            child: TextFormField(
+              controller: controller,
+              obscureText: true,
+              autofocus: true,
+              decoration: const InputDecoration(
+                labelText: 'Admin password',
+                border: OutlineInputBorder(),
+              ),
+              validator: (v) {
+                if (v == null || v.trim().isEmpty) return 'Enter password';
+                if (v.trim() != _kAdminPassword) return 'Incorrect password';
+                return null;
+              },
+              onFieldSubmitted: (_) => _submitAdminLogin(ctx, key, controller),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(ctx).pop();
+                controller.dispose();
+              },
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () => _submitAdminLogin(ctx, key, controller),
+              child: const Text('Login'),
+            ),
+          ],
+        );
+      },
+    ).then((_) => controller.dispose());
+  }
+
+  Future<void> _submitAdminLogin(
+    BuildContext dialogContext,
+    GlobalKey<FormState> key,
+    TextEditingController controller,
+  ) async {
+    if (!key.currentState!.validate()) return;
+    Navigator.of(dialogContext).pop();
+    if (!mounted) return;
+    try {
+      final auth = context.read<AuthService>();
+      final appState = context.read<AppState>();
+      await auth.signInAnonymously();
+      await auth.setRoleAdmin();
+      if (!mounted) return;
+      // Defer profile refresh to next frame to avoid _dependents.isEmpty assertion
+      // when RootScreen switches from AppShell to AdminDashboardScreen.
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        if (!mounted) return;
+        await appState.refreshProfile();
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Welcome to Admin Console')),
+          );
+        }
+      });
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString())),
+        );
+      }
+    }
   }
 
   @override
@@ -71,6 +156,7 @@ class _AppShellState extends State<AppShell> {
             currentRoute: _route,
             onNavigate: _navigateTo,
             isWide: isWide,
+            onAdminPressed: _showAdminLoginDialog,
           ),
           Expanded(
             child: _buildBody(),
@@ -87,6 +173,7 @@ class _AppShellState extends State<AppShell> {
         AppShellRoute.signUp => SignUpScreen(
             inShell: true,
             onNavigateToSignIn: () => _navigateTo(AppShellRoute.signIn),
+            onAdminPressed: _showAdminLoginDialog,
           ),
         AppShellRoute.signIn => SignInScreen(
             inShell: true,
@@ -95,9 +182,9 @@ class _AppShellState extends State<AppShell> {
         AppShellRoute.about => const AboutScreen(),
         AppShellRoute.contact => const ContactScreen(),
         AppShellRoute.faq => const FaqScreen(),
-        _ => SignUpScreen(
+        _ => SignInScreen(
             inShell: true,
-            onNavigateToSignIn: () => _navigateTo(AppShellRoute.signIn),
+            onNavigateToSignUp: () => _navigateTo(AppShellRoute.signUp),
           ),
       };
     }
@@ -119,12 +206,14 @@ class _AppHeader extends StatelessWidget {
     required this.currentRoute,
     required this.onNavigate,
     required this.isWide,
+    this.onAdminPressed,
   });
 
   final bool loggedIn;
   final AppShellRoute currentRoute;
   final void Function(AppShellRoute) onNavigate;
   final bool isWide;
+  final VoidCallback? onAdminPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -165,7 +254,10 @@ class _AppHeader extends StatelessWidget {
             child: isWide
                 ? Row(
                     children: [
-                      _Logo(onTap: () => onNavigate(loggedIn ? AppShellRoute.home : AppShellRoute.signUp)),
+                      _Logo(onTap: () => onNavigate(loggedIn ? AppShellRoute.home : AppShellRoute.signIn))
+                          .animate()
+                          .fadeIn(duration: 400.ms)
+                          .slideX(begin: -0.05, end: 0, curve: Curves.easeOutCubic),
                       const SizedBox(width: 32),
                       ...navItems.map((e) => _NavChip(
                             label: e.$2,
@@ -173,23 +265,49 @@ class _AppHeader extends StatelessWidget {
                             onTap: () => onNavigate(e.$1),
                           )),
                       const Spacer(),
-                      if (loggedIn) _ProfileButton() else _AuthButtons(onNavigate: onNavigate),
+                      if (loggedIn)
+                        _ProfileButton()
+                      else
+                        _AuthButtons(
+                          onNavigate: onNavigate,
+                          onAdminPressed: onAdminPressed,
+                        ),
                     ],
                   )
                 : Row(
                     children: [
-                      _Logo(onTap: () => onNavigate(loggedIn ? AppShellRoute.home : AppShellRoute.signUp)),
+                      _Logo(onTap: () => onNavigate(loggedIn ? AppShellRoute.home : AppShellRoute.signIn))
+                          .animate()
+                          .fadeIn(duration: 400.ms)
+                          .slideX(begin: -0.05, end: 0, curve: Curves.easeOutCubic),
                       const Spacer(),
-                      PopupMenuButton<AppShellRoute>(
+                      PopupMenuButton<Object>(
                         icon: const Icon(Icons.menu_rounded),
-                        onSelected: onNavigate,
+                        onSelected: (value) {
+                          if (value == _adminMenuValue) {
+                            onAdminPressed?.call();
+                          } else {
+                            onNavigate(value as AppShellRoute);
+                          }
+                        },
                         itemBuilder: (ctx) => [
-                          ...navItems.map((e) => PopupMenuItem(
+                          ...navItems.map((e) => PopupMenuItem<Object>(
                                 value: e.$1,
                                 child: Text(e.$2),
                               )),
                           if (!loggedIn) ...[
-                            const PopupMenuItem(value: AppShellRoute.signIn, child: Text('Sign in')),
+                            const PopupMenuItem<Object>(
+                              value: AppShellRoute.signIn,
+                              child: Text('Sign in'),
+                            ),
+                            if (onAdminPressed != null)
+                              const PopupMenuItem<Object>(
+                                value: _adminMenuValue,
+                                child: ListTile(
+                                  leading: Icon(Icons.admin_panel_settings_outlined, size: 20),
+                                  title: Text('Admin Console'),
+                                ),
+                              ),
                           ],
                         ],
                       ),
@@ -260,15 +378,31 @@ class _NavChip extends StatelessWidget {
 }
 
 class _AuthButtons extends StatelessWidget {
-  const _AuthButtons({required this.onNavigate});
+  const _AuthButtons({
+    required this.onNavigate,
+    this.onAdminPressed,
+  });
 
   final void Function(AppShellRoute) onNavigate;
+  final VoidCallback? onAdminPressed;
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
+        if (onAdminPressed != null) ...[
+          TextButton.icon(
+            onPressed: onAdminPressed,
+            icon: const Icon(Icons.admin_panel_settings_outlined, size: 20),
+            label: const Text('Admin'),
+            style: TextButton.styleFrom(
+              foregroundColor: theme.colorScheme.primary,
+            ),
+          ),
+          const SizedBox(width: 8),
+        ],
         TextButton(
           onPressed: () => onNavigate(AppShellRoute.signIn),
           child: const Text('Sign in'),
@@ -290,18 +424,24 @@ class _ProfileButton extends StatelessWidget {
     final appState = context.read<AppState>();
     final user = appState.appUser;
 
+    final email = user?.email ?? '';
+    final hasEmail = email.isNotEmpty;
     return PopupMenuButton<String>(
       icon: CircleAvatar(
         backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-        child: Text(
-          (user?.email?.isNotEmpty == true)
-              ? (user!.email!.substring(0, 1).toUpperCase())
-              : '?',
-          style: TextStyle(
-            color: Theme.of(context).colorScheme.onPrimaryContainer,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
+        child: hasEmail
+            ? Text(
+                email.substring(0, 1).toUpperCase(),
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onPrimaryContainer,
+                  fontWeight: FontWeight.w600,
+                ),
+              )
+            : Icon(
+                Icons.menu_rounded,
+                color: Theme.of(context).colorScheme.onPrimaryContainer,
+                size: 24,
+              ),
       ),
       itemBuilder: (ctx) => [
         PopupMenuItem(

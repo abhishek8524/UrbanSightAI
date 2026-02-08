@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../utils/app_animations.dart';
 import '../widgets/animated_3d_card.dart';
 
 class FaqScreen extends StatefulWidget {
@@ -65,9 +65,7 @@ class _FaqScreenState extends State<FaqScreen> {
               color: colorScheme.onSurface,
             ),
           )
-              .animate()
-              .fadeIn(duration: 400.ms)
-              .slideY(begin: 0.2, end: 0, curve: Curves.easeOut),
+              .animateEntrance(delayMs: 0),
           const SizedBox(height: 12),
           Text(
             'Quick answers to common questions about UrbanSight.',
@@ -75,9 +73,7 @@ class _FaqScreenState extends State<FaqScreen> {
               color: colorScheme.onSurfaceVariant,
             ),
           )
-              .animate()
-              .fadeIn(delay: 100.ms, duration: 400.ms)
-              .slideY(begin: 0.15, end: 0, curve: Curves.easeOut),
+              .animateEntrance(delayMs: 80),
           const SizedBox(height: 32),
           ...List.generate(_faqs.length, (i) {
             final faq = _faqs[i];
@@ -137,9 +133,7 @@ class _FaqScreenState extends State<FaqScreen> {
                   ),
                 ),
               )
-                  .animate()
-                  .fadeIn(delay: (200 + i * 60).ms, duration: 400.ms)
-                  .slideY(begin: 0.05, end: 0, curve: Curves.easeOut),
+                  .animateStagger(i + 2, stepMs: 60),
             );
           }),
           const SizedBox(height: 48),

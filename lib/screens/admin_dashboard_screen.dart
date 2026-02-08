@@ -145,12 +145,12 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       appBar: AppBar(
         title: const Text('Admin Dashboard'),
         actions: [
-          IconButton(
-            tooltip: 'Sign out',
-            icon: const Icon(Icons.logout),
+          TextButton.icon(
             onPressed: () async {
               await context.read<AuthService>().signOut();
             },
+            icon: const Icon(Icons.logout_rounded, size: 20),
+            label: const Text('Logout'),
           ),
           IconButton(
             tooltip: _viewMode == _ViewMode.list ? 'Map view' : 'List view',
@@ -228,31 +228,48 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _FiltersSection(
-                statusFilter: _statusFilter,
-                categoryFilter: _categoryFilter,
-                searchKeyword: _searchKeyword,
-                flaggedOnly: _flaggedOnly,
-                onStatusChanged: (v) => setState(() => _statusFilter = v),
-                onCategoryChanged: (v) => setState(() => _categoryFilter = v),
-                onSearchChanged: (v) => setState(() => _searchKeyword = v),
-                onFlaggedToggled: () =>
-                    setState(() => _flaggedOnly = !_flaggedOnly),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Text(
-                  '${reports.length} report${reports.length == 1 ? '' : 's'}',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+              Flexible(
+                fit: FlexFit.loose,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxHeight: 200),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        _FiltersSection(
+                        statusFilter: _statusFilter,
+                        categoryFilter: _categoryFilter,
+                        searchKeyword: _searchKeyword,
+                        flaggedOnly: _flaggedOnly,
+                        onStatusChanged: (v) => setState(() => _statusFilter = v),
+                        onCategoryChanged: (v) => setState(() => _categoryFilter = v),
+                        onSearchChanged: (v) => setState(() => _searchKeyword = v),
+                        onFlaggedToggled: () =>
+                            setState(() => _flaggedOnly = !_flaggedOnly),
                       ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        child: Text(
+                          '${reports.length} report${reports.length == 1 ? '' : 's'}',
+                          style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                fontWeight: FontWeight.w600,
+                              ),
+                        ),
+                      ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
-              const SizedBox(height: 8),
               Expanded(
-                child: _viewMode == _ViewMode.list
-                    ? _ReportList(reports: reports, dateFormat: _dateFormat)
-                    : _ReportMap(reports: reports),
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 16, left: 4, right: 4),
+                  child: _viewMode == _ViewMode.list
+                      ? _ReportList(reports: reports, dateFormat: _dateFormat)
+                      : _ReportMap(reports: reports),
+                ),
               ),
             ],
           );
@@ -285,91 +302,142 @@ class _FiltersSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      elevation: 1,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  FilterChip(
-                    label: const Text('Flagged / Needs Review'),
-                    selected: flaggedOnly,
-                    onSelected: (_) => onFlaggedToggled(),
-                  ),
-                  const SizedBox(width: 8),
-                  SizedBox(
-                    width: 140,
-                    child: DropdownButtonFormField<ReportStatus?>(
-                      value: statusFilter,
-                      decoration: const InputDecoration(
-                        labelText: 'Status',
-                        isDense: true,
-                        contentPadding:
-                            EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                        border: OutlineInputBorder(),
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    return Container(
+      margin: const EdgeInsets.fromLTRB(12, 12, 12, 0),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerLowest,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: colorScheme.shadow.withValues(alpha: 0.06),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final maxW = constraints.maxWidth.isFinite
+                  ? constraints.maxWidth
+                  : MediaQuery.sizeOf(context).width - 24;
+              return SizedBox(
+                width: maxW,
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  clipBehavior: Clip.hardEdge,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      FilterChip(
+                        label: const Text('Flagged / Needs Review'),
+                        selected: flaggedOnly,
+                        onSelected: (_) => onFlaggedToggled(),
+                        selectedColor: colorScheme.primaryContainer,
                       ),
-                      items: [
-                        const DropdownMenuItem(
-                          value: null,
-                          child: Text('All'),
-                        ),
-                        ...ReportStatus.values.map(
-                          (s) => DropdownMenuItem(
-                            value: s,
-                            child: Text(s.value),
+                      const SizedBox(width: 12),
+                      SizedBox(
+                        width: 140,
+                        child: DropdownButtonFormField<ReportStatus?>(
+                            value: statusFilter,
+                            decoration: InputDecoration(
+                              labelText: 'Status',
+                              isDense: true,
+                              filled: true,
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 8,
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            items: [
+                              const DropdownMenuItem(
+                                value: null,
+                                child: Text('All'),
+                              ),
+                              ...ReportStatus.values.map(
+                                (s) => DropdownMenuItem(
+                                  value: s,
+                                  child: Text(s.value),
+                                ),
+                              ),
+                            ],
+                            onChanged: onStatusChanged,
                           ),
                         ),
-                      ],
-                      onChanged: onStatusChanged,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  SizedBox(
-                    width: 140,
-                    child: DropdownButtonFormField<String?>(
-                      value: categoryFilter,
-                      decoration: const InputDecoration(
-                        labelText: 'Category',
-                        isDense: true,
-                        contentPadding:
-                            EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                        border: OutlineInputBorder(),
-                      ),
-                      items: [
-                        const DropdownMenuItem(
-                          value: null,
-                          child: Text('All'),
+                        const SizedBox(width: 12),
+                        SizedBox(
+                          width: 140,
+                          child: DropdownButtonFormField<String?>(
+                            value: categoryFilter,
+                            decoration: InputDecoration(
+                              labelText: 'Category',
+                              isDense: true,
+                              filled: true,
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 8,
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            items: [
+                              const DropdownMenuItem(
+                                value: null,
+                                child: Text('All'),
+                              ),
+                              ...reportCategories.map(
+                                (c) => DropdownMenuItem(
+                                  value: c,
+                                  child: Text(c),
+                                ),
+                              ),
+                            ],
+                            onChanged: onCategoryChanged,
+                          ),
                         ),
-                        ...reportCategories.map(
-                          (c) => DropdownMenuItem(value: c, child: Text(c)),
-                        ),
-                      ],
-                      onChanged: onCategoryChanged,
-                    ),
+                    ],
                   ),
-                ],
+                ),
+              );
+            },
+          ),
+          const SizedBox(height: 10),
+          TextField(
+            onChanged: onSearchChanged,
+            decoration: InputDecoration(
+              labelText: 'Search',
+              hintText: 'Keyword…',
+              prefixIcon: Icon(
+                Icons.search_rounded,
+                size: 20,
+                color: colorScheme.onSurfaceVariant,
+              ),
+              filled: true,
+              isDense: true,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 10,
               ),
             ),
-            const SizedBox(height: 12),
-            TextField(
-              onChanged: onSearchChanged,
-              decoration: const InputDecoration(
-                labelText: 'Search',
-                hintText: 'Keyword in description, title, category…',
-                prefixIcon: Icon(Icons.search),
-                border: OutlineInputBorder(),
-                isDense: true,
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -393,24 +461,43 @@ class _ReportList extends StatelessWidget {
           );
         }
 
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     return ListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       itemCount: reports.length,
       itemBuilder: (context, index) {
         final r = reports[index];
-        return Card(
-          margin: const EdgeInsets.only(bottom: 8),
+        return Container(
+          margin: const EdgeInsets.only(bottom: 12),
+          decoration: BoxDecoration(
+            color: colorScheme.surface,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: colorScheme.shadow.withValues(alpha: 0.05),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
           child: ListTile(
             contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 8,
+              horizontal: 20,
+              vertical: 12,
             ),
             title: Row(
               children: [
                 Expanded(
                   child: Text(
                     r.category,
-                    style: const TextStyle(fontWeight: FontWeight.w600),
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: colorScheme.primary,
+                    ),
                   ),
                 ),
                 StatusChip(status: r.status),
@@ -511,7 +598,8 @@ class _ReportMap extends StatelessWidget {
       );
     }).toSet();
 
-    return ClipRect(
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(12),
       child: GoogleMap(
         initialCameraPosition: CameraPosition(
           target: center,

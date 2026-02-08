@@ -20,7 +20,7 @@ class RootScreen extends StatelessWidget {
     }
     return AppShell(
       loggedIn: user != null,
-      initialRoute: user == null ? AppShellRoute.signUp : AppShellRoute.home,
+      initialRoute: user == null ? AppShellRoute.signIn : AppShellRoute.home,
     );
   }
 }
